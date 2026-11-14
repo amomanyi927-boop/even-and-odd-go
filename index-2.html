@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Even and Odd Go — Trading Dashboard</title>
+<style>
+:root{--bg:#0b1220;--panel:#121d30;--panel2:#17243a;--line:#263650;--text:#eef4ff;--muted:#91a2bb;--green:#28c58b;--red:#f06a75;--gold:#e9bd57}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,Arial,sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--line);background:#0e1829;position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.5px}.logo{width:38px;height:38px;border-radius:12px;background:var(--green);color:#062018;display:grid;place-items:center;font-weight:900}
+.pill{border:1px solid #53627a;border-radius:30px;padding:6px 11px;color:var(--muted);font-size:12px}
+main{max-width:1200px;margin:0 auto;padding:24px 18px 50px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:clamp(25px,4vw,36px);margin:0 0 4px}p{color:var(--muted);margin:0}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button,select,input{font:inherit}button,select{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 13px;border-radius:10px;cursor:pointer}
+button.active{background:var(--green);color:#062018;border-color:var(--green);font-weight:800}
+.notice{background:#352b16;border:1px solid #69552b;color:#f2d99a;padding:12px 14px;border-radius:12px;margin:18px 0}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px;min-width:0}
+.label{color:var(--muted);font-size:12px}.value{font-size:24px;font-weight:750;margin-top:5px}.small{font-size:12px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:1.65fr 1fr;gap:14px;margin-top:14px}
+.panel-title{font-size:16px;font-weight:750;margin:0 0 14px}
+.chartbox{height:280px;background:linear-gradient(180deg,#13233a,#101a2b);border:1px solid var(--line);border-radius:12px;overflow:hidden;position:relative}
+.chartbox svg{width:100%;height:100%}.chart-tag{position:absolute;top:12px;left:13px;background:#0b1424cc;padding:5px 9px;border-radius:7px;font-size:12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
+.symbol{font-weight:750}.buy{background:#123d32;color:#8ff0c8;border:1px solid #1b6b50}.sell{background:#45232c;color:#ffadb4;border:1px solid #7a3945}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
+input{width:100%;padding:10px;border:1px solid var(--line);background:#0d1727;color:var(--text);border-radius:9px;margin-top:5px}
+.field{margin:12px 0}.trade-list{width:100%;border-collapse:collapse;font-size:13px}.trade-list td,.trade-list th{text-align:left;padding:10px 6px;border-bottom:1px solid var(--line)}.trade-list th{color:var(--muted);font-weight:600}
+footer{color:var(--muted);font-size:12px;text-align:center;margin-top:25px}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}}
+@media(max-width:430px){header{padding:12px}.grid{gap:8px}.card{padding:12px}.value{font-size:20px}.controls{width:100%}.controls button{flex:1}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">E/O</div><span>EVEN AND ODD GO</span></div>
+  <span class="pill">PRIVATE BUILD · PREVIEW</span>
+</header>
+<main>
+  <section class="top">
+    <div><h1>Trading dashboard</h1><p>Your personal forex and gold workspace</p></div>
+    <div class="controls">
+      <button id="demoBtn" class="active" onclick="setMode('Demo')">Demo mode</button>
+      <button id="liveBtn" onclick="setMode('Live')">Live mode</button>
+      <span class="pill" id="modeLabel">Demo selected</span>
+    </div>
+  </section>
+  <div class="notice"><strong>Prototype only:</strong> This website is not connected to Exness or MT5. Prices, balances and orders are not live. No real trades or deposits can be made here.</div>
+
+  <section class="grid">
+    <div class="card"><div class="label">Account balance</div><div class="value" id="balance">—</div><div class="small">Waiting for secure broker connection</div></div>
+    <div class="card"><div class="label">Equity</div><div class="value">—</div><div class="small">Not connected</div></div>
+    <div class="card"><div class="label">Open positions</div><div class="value">0</div><div class="small">No account data loaded</div></div>
+    <div class="card"><div class="label">Connection status</div><div class="value" style="font-size:19px;color:var(--gold)">Not connected</div><div class="small">Exness MT5 bridge required</div></div>
+  </section>
+
+  <section class="layout">
+    <div class="card">
+      <div class="panel-title">Market chart · XAU/USD</div>
+      <div class="chartbox">
+        <span class="chart-tag">Illustrative chart · not live prices</span>
+        <svg viewBox="0 0 760 280" preserveAspectRatio="none" aria-label="Illustrative candlestick chart">
+          <g stroke="#2b3b54" stroke-width="1">
+            <path d="M0 55H760 M0 110H760 M0 165H760 M0 220H760"/>
+            <path d="M95 0V280 M190 0V280 M285 0V280 M380 0V280 M475 0V280 M570 0V280 M665 0V280"/>
+          </g>
+          <g stroke-width="2">
+            <path d="M35 160V205 M70 135V180 M105 145V195 M140 110V160 M175 125V175 M210 95V145 M245 105V155 M280 75V130 M315 95V150 M350 120V175 M385 105V155 M420 80V135 M455 90V145 M490 65V120 M525 80V135 M560 55V105 M595 75V125 M630 45V100 M665 60V115 M700 35V90" stroke="#8da0bb"/>
+          </g>
+          <g>
+            <rect x="28" y="170" width="14" height="24" fill="#f06a75"/><rect x="63" y="145" width="14" height="25" fill="#28c58b"/>
+            <rect x="98" y="158" width="14" height="25" fill="#f06a75"/><rect x="133" y="122" width="14" height="25" fill="#28c58b"/>
+            <rect x="168" y="138" width="14" height="24" fill="#f06a75"/><rect x="203" y="108" width="14" height="25" fill="#28c58b"/>
+            <rect x="238" y="118" width="14" height="23" fill="#f06a75"/><rect x="273" y="88" width="14" height="24" fill="#28c58b"/>
+            <rect x="308" y="108" width="14" height="25" fill="#f06a75"/><rect x="343" y="137" width="14" height="24" fill="#f06a75"/>
+            <rect x="378" y="120" width="14" height="24" fill="#28c58b"/><rect x="413" y="95" width="14" height="25" fill="#28c58b"/>
+            <rect x="448" y="105" width="14" height="24" fill="#f06a75"/><rect x="483" y="78" width="14" height="24" fill="#28c58b"/>
+            <rect x="518" y="92" width="14" height="23" fill="#f06a75"/><rect x="553" y="66" width="14" height="23" fill="#28c58b"/>
+            <rect x="588" y="89" width="14" height="22" fill="#f06a75"/><rect x="623" y="56" width="14" height="22" fill="#28c58b"/>
+            <rect x="658" y="70" width="14" height="22" fill="#f06a75"/><rect x="693" y="46" width="14" height="22" fill="#28c58b"/>
+          </g>
+        </svg>
+      </div>
+      <p class="small" style="margin-top:10px">The real chart will be populated from your eligible Exness/MT5 account after the secure connection is configured.</p>
+    </div>
+    <div class="card">
+      <div class="panel-title">Watchlist</div>
+      <div class="row"><span><span class="symbol">XAU/USD</span><br><span class="small">Gold / US Dollar</span></span><span class="pill">Awaiting feed</span></div>
+      <div class="row"><span><span class="symbol">EUR/USD</span><br><span class="small">Euro / US Dollar</span></span><span class="pill">Awaiting feed</span></div>
+      <div class="row"><span><span class="symbol">GBP/USD</span><br><span class="small">Pound / US Dollar</span></span><span class="pill">Awaiting feed</span></div>
+      <div class="row"><span><span class="symbol">USD/JPY</span><br><span class="small">US Dollar / Yen</span></span><span class="pill">Awaiting feed</span></div>
+      <div class="panel-title" style="margin-top:19px">Order ticket (disabled)</div>
+      <div class="field"><label class="small" for="symbol">Instrument</label><select id="symbol"><option>XAU/USD</option><option>EUR/USD</option><option>GBP/USD</option></select></div>
+      <div class="field"><label class="small" for="lots">Volume (lots)</label><input id="lots" type="number" value="0.01" min="0.01" step="0.01" disabled></div>
+      <div class="actions"><button class="buy" disabled>Buy · disabled</button><button class="sell" disabled>Sell · disabled</button></div>
+      <p class="small" style="margin-top:10px">Order placement stays disabled until the broker connection, risk controls and required approvals are in place.</p>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:14px">
+    <div class="panel-title">Recent trades</div>
+    <table class="trade-list"><thead><tr><th>Instrument</th><th>Type</th><th>Volume</th><th>Status</th></tr></thead><tbody><tr><td colspan="4" class="small">No trades loaded. Connect an account to view your history.</td></tr></tbody></table>
+  </section>
+  <footer>Even and Odd Go · Private development preview · Not a broker · Not financial advice</footer>
+</main>
+<script>
+function setMode(mode){
+  document.getElementById('demoBtn').classList.toggle('active',mode==='Demo');
+  document.getElementById('liveBtn').classList.toggle('active',mode==='Live');
+  document.getElementById('modeLabel').textContent=mode+' selected · not connected';
+  document.getElementById('balance').textContent='—';
+}
+</script>
+</body>
+</html>
